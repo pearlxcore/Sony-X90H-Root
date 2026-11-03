@@ -33,7 +33,6 @@ not work, because the addresses and the module CRCs are for this build.
 - [If full root is achieved](#if-full-root-is-achieved)
 - [FAQ](#faq)
 - [Building](#building)
-- [Author](#author)
 
 ## What it gives
 
