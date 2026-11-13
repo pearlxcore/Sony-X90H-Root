@@ -34,14 +34,14 @@ not work, because the addresses and the module CRCs are for this build.
 - [FAQ](#faq)
 - [Building](#building)
 
-## What it gives
+## What it gives 
 
 - uid 0 in the `shell` domain, starting from an unprivileged `adb shell`
 - a small kernel module that sets SELinux to permissive
 - a command server running in the `init` domain, reading
   `/data/local/tests/x90cmd`
 
-## What it does not give
+## What it does not give (yet)
 
 - persistence across reboots
 - a bootloader unlock
