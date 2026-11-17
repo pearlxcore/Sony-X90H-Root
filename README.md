@@ -43,6 +43,7 @@ work.
 | [docs/RECOVERY-TECHNICAL.md](docs/RECOVERY-TECHNICAL.md) | Recovery rc, BCB patch code, offsets, post-wipe |
 | [docs/X1-PICTURE.md](docs/X1-PICTURE.md) | X90H Picture Control v0.2.0 and the 84-key PQ surface |
 | [docs/X1-TECHNICAL.md](docs/X1-TECHNICAL.md) | PQ reflection code, VRR/LD policy, 4k1k, DBC4PS |
+| [docs/CLAIM-ANSWERS.md](docs/CLAIM-ANSWERS.md) | Short answer table for the four user claims |
 | [docs/USER-CLAIMS.md](docs/USER-CLAIMS.md) | The owner's claim input (source material, not analysis) |
 | [docs/X1-DEFECTS.md](docs/X1-DEFECTS.md) | Four public defect claims, with PROVEN/CANDIDATE/OPEN labels |
 | [docs/CODE-MAP.md](docs/CODE-MAP.md) | Where the code lives and which functions matter |

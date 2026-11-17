@@ -2,7 +2,8 @@
 
 **Status:** owner-provided claim summary, not analysis.  
 **Compiled by:** ChatGPT, citing RTINGS and owner reports.  
-**Verified by this project:** no. The current verdicts are in
+**Verified by this project:** no. The short answer is in
+[CLAIM-ANSWERS.md](CLAIM-ANSWERS.md); the detailed verdicts are in
 [X1-DEFECTS.md](X1-DEFECTS.md).
 
 This page preserves the claim set that started the investigation, so a reader
