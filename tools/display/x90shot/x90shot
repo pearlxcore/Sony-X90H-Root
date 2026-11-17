@@ -1,0 +1,173 @@
+#!/usr/bin/env bash
+# x90shot v0.2 - native 4K STILL screenshot of what the TV panel is driven with
+# (Sony video + Android/engine overlays), via the stock OSTG pixel monitors.
+# Host CLI (Git Bash). 2026-11-16. Samples across refreshes: STATIC scenes only.
+# Every capture is bracketed by two quick probes; still.png / still-mask.npy mark
+# what changed during the capture (excluded from comparisons).
+#
+#   x90shot deploy                     push module + worker + pattern (once per boot / after build)
+#   x90shot roi NAME X Y W H [STEP]    native region (X,Y in 3840x2160 panel coords)
+#   x90shot strip NAME X W [STEP]      full-height strip (height is free; width costs time)
+#   x90shot full NAME [STEP]           whole screen (STEP 1 = native 3840x2160, ~10 min)
+#   x90shot preview NAME               whole screen at STEP 4 (960x540)
+#   x90shot ab NAME [strip X W | roi X Y W H | full]
+#                                      same frame: Sony alone, then the engine full screen,
+#                                      then compare (bounds, sharpness, pixel grid, tone).
+#                                      env: ROUTE=game_plus|keep  JOPT  ESET  ENGDEX DISH FUSH UPSH
+#                                           REUSE_SONY=<earlier ab .../sony dir> skips the Sony capture
+#   x90shot compare A_DIR B_DIR OUT    compare two capture folders
+#   x90shot validate                   capture the known pattern and check every pixel
+#   x90shot status | abort | finish    inspect / stop / unload a running capture
+# Output: tools/x90shot/shots/<NAME>-<time>/ : NAME.png, NAME-16.png, NAME.npy (RGB12),
+#         meta.json, still.png, still-mask.npy, still.json, tile .bin, log.txt
+set -u
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MB="$HERE/mbox.sh"
+X1="$HERE/../../picture-control/x1"
+ADB="${ADB:-adb} -s ${TV_SERIAL:-127.0.0.1:5555}"
+D=/data/local/tests/x90shot
+R=/data/local/tests/x90-rh-20261115
+export MSYS_NO_PATHCONV=1
+win(){ printf '%s' "$1" | sed -E 's#^/([a-z])/#\U\1:/#'; }
+dev(){ "$MB" -t "${TIMEOUT:-40}" "sh $D/x90shot-dev.sh $*" | grep -v '^uid=' | grep -v '^---- rc=' | sed '/^$/d'; }
+TAGN=0
+newtag(){ TAGN=$(( TAGN + 1 )); TAG=$(( $(date +%s) % 100000 * 10 + TAGN % 10 )); }
+
+capture_tile(){ # OUTDIR TAG X0 Y0 W H STEP PAIR
+  local out=$1 tag=$2; shift 2
+  local r; r=$(dev start "$tag" "$@") || true
+  echo "$r" >> "$out/log.txt"
+  echo "$r" | grep -q STARTED || { echo "$r"; dev finish >> "$out/log.txt"; return 1; }
+  local t0; t0=$(date +%s)
+  while :; do
+    sleep "${POLL:-4}"
+    local s; s=$(dev status | grep 'state=')
+    local st pts tot; st=$(echo "$s" | sed -E 's/.*state=([a-z]+).*/\1/'); pts=$(echo "$s" | sed -E 's/.*points=([0-9]+).*/\1/'); tot=$(echo "$s" | sed -E 's/.*total=([0-9]+).*/\1/')
+    local el=$(( $(date +%s) - t0 ))
+    if [ "$st" = running ] && [ "${pts:-0}" -gt 0 ] && [ -z "${QUIET:-}" ]; then
+      printf '\r  %s: %s/%s points  %ds elapsed  ~%ds left   ' "$tag" "$pts" "$tot" "$el" $(( el * (tot - pts) / pts ))
+    fi
+    case "$st" in
+      done)  [ -z "${QUIET:-}" ] && echo; echo "$s" >> "$out/log.txt"; break ;;
+      error|unloaded) echo; echo "$s" | tee -a "$out/log.txt"; dev finish >> "$out/log.txt"; return 1 ;;
+    esac
+  done
+  $ADB pull "$D/shot-$tag.bin" "$(win "$out")/shot-$tag.bin" >/dev/null || { dev finish; return 1; }
+  dev finish >> "$out/log.txt"
+}
+
+shot_dir(){ # OUTDIR NAME STEP tile-spec... (each spec "X0 Y0 W H PAIR")
+  local out=$1 name=$2 step=$3; shift 3
+  mkdir -p "$out"
+  local tiles="" spec
+  for spec in "$@"; do
+    set -- $spec; newtag; local tag=$TAG
+    capture_tile "$out" "$tag" "$1" "$2" "$3" "$4" "$step" "$5" || { echo "CAPTURE FAILED (see $out/log.txt)"; return 1; }
+    tiles="$tiles${tiles:+,}{\"bin\":\"$(win "$out")/shot-$tag.bin\",\"x0\":$1,\"y0\":$2,\"w\":$3,\"h\":$4,\"step\":$step,\"pair\":$5}"
+  done
+  echo "{\"name\":\"$name\",\"step\":$step,\"tiles\":[$tiles],\"note\":\"x90shot multi-refresh still; static content only\"}" > "$out/meta.json"
+  python "$(win "$HERE")/x90shot_img.py" assemble "$(win "$out")/meta.json" "$(win "$out")/$name" | grep -v '^$'
+}
+
+# shoot OUTDIR NAME STEP PROBESPEC tile-spec...   (PROBESPEC "X0 Y0 W H PAIR PSTEP" or "none")
+shoot(){
+  local out=$1 name=$2 step=$3 probe=$4; shift 4
+  mkdir -p "$out"
+  local p=($probe)
+  if [ "$probe" != none ]; then QUIET=1 shot_dir "$out/probe-pre" probe "${p[5]}" "${p[0]} ${p[1]} ${p[2]} ${p[3]} ${p[4]}" >/dev/null || return 1; fi
+  echo "capture $name (step $step) -> $out"
+  shot_dir "$out" "$name" "$step" "$@" || return 1
+  if [ "$probe" != none ]; then
+    QUIET=1 shot_dir "$out/probe-post" probe "${p[5]}" "${p[0]} ${p[1]} ${p[2]} ${p[3]} ${p[4]}" >/dev/null || return 1
+    python "$(win "$HERE")/x90shot_img.py" still "$(win "$out")"
+  fi
+  LAST_OUT=$out
+}
+
+# region spec -> STEP PROBE TILES (sets globals)
+region(){
+  case "$1" in
+    strip) RSTEP=${4:-1}; RPROBE="$2 0 $3 2160 0 16"; RTILES=("$2 0 $3 2160 0") ;;
+    roi)   RSTEP=${6:-1}; RPROBE="$2 $3 $4 $5 0 16"; RTILES=("$2 $3 $4 $5 0") ;;
+    full)  RSTEP=${2:-1}; RPROBE="0 0 1920 2160 1 32"
+           if [ "$RSTEP" = 1 ]; then RTILES=("0 0 480 2160 1" "480 0 480 2160 1" "960 0 480 2160 1" "1440 0 480 2160 1"); else RTILES=("0 0 1920 2160 1"); fi ;;
+    *) echo "region: strip X W [STEP] | roi X Y W H [STEP] | full [STEP]"; return 1 ;;
+  esac
+}
+
+engine_start(){ # TAG
+  local eset="${ESET:-di=3 motion=14 edge=100 sharp=50}"
+  "$MB" -t 60 "printf '%s\n' $eset > /data/local/tests/x90-engine-settings; cd /data/local/tests; nohup env ENGDEX=${ENGDEX:-$R/engine-ll9lbl.dex} DISH=${DISH:-$R/field-di-vt-gated.frag} FUSH=${FUSH:-$R/fu} UPSH=${UPSH:-} OW=${OW:-1920} OH=${OH:-1080} JOPT=\"${JOPT:--Dx90.fastup=1}\" sh /data/local/tests/eng_split.sh $1 1800 > /dev/shm/eng-$1.log 2>&1 & n=0; while [ \$n -lt 30 ]; do grep -q CUSTOM_ACTIVE /dev/shm/eng-$1.log 2>/dev/null && break; grep -qE 'ENGINE_EXIT|ERROR' /dev/shm/eng-$1.log 2>/dev/null && break; sleep 1; n=\$((n+1)); done; sleep 3; grep -E 'CUSTOM_ACTIVE|ERROR|EXIT' /dev/shm/eng-$1.log; grep -E 'ENGINE_SETTINGS_INIT|ENGINE_FASTUP ready' /dev/shm/x90-eng-$1/renderer.txt" | grep -v '^uid='
+}
+engine_stop(){
+  "$MB" -t 60 'A=$(cat /data/local/tests/x90-engine-active 2>/dev/null); if [ -n "$A" ] && [ -d "$A" ]; then printf stop > $A/stop; n=0; while [ ! -e $A/state-stopped ] && [ ! -e $A/state-error ] && [ $n -lt 20 ]; do sleep 1; n=$((n+1)); done; cat $A/state-stopped $A/state-error 2>/dev/null; else echo no-active-engine; fi; printf "di=0\nmotion=12\nedge=100\nsharp=0\n" > /data/local/tests/x90-engine-settings' | grep -vE '^uid=|^---- rc='
+}
+
+cmd=${1:-help}; shift || true
+case "$cmd" in
+deploy)
+  sha=$(cut -d' ' -f1 "$HERE/build/x90shot.ko.sha256")
+  sed "s/@KO_SHA@/$sha/" "$HERE/x90shot-dev.sh" > "$HERE/build/x90shot-dev.sh"
+  $ADB shell "mkdir -p $D && chmod 777 $D"
+  $ADB push "$(win "$HERE")/build/x90shot.ko" "$D/x90shot.ko" >/dev/null
+  $ADB push "$(win "$HERE")/build/x90shot-dev.sh" "$D/x90shot-dev.sh" >/dev/null
+  $ADB push "$(win "$HERE")/build/x90shot-pattern.dex" "$D/x90shot-pattern.dex" >/dev/null
+  echo "deployed x90shot.ko $sha" ;;
+roi|strip|full|preview)
+  name=${1:?NAME}; shift
+  if [ "$cmd" = preview ]; then region full 4; else region "$cmd" "$@" || exit 2; fi
+  shoot "$HERE/shots/$name-$(date +%Y%m%d-%H%M%S)" "$name" "$RSTEP" "$RPROBE" "${RTILES[@]}" ;;
+ab)
+  name=${1:?NAME}; shift
+  [ $# -eq 0 ] && set -- strip 1440 960
+  region "$@" || exit 2
+  out="$HERE/shots/ab-$name-$(date +%Y%m%d-%H%M%S)"; mkdir -p "$out"
+  snap="ab$(date +%H%M%S)"; etag="ab$(date +%H%M%S)"
+  if [ -n "${REUSE_SONY:-}" ]; then
+    # Reuse an earlier Sony capture of the same frame (engine covers the screen, so
+    # Sony's own settings do not matter for the engine capture).
+    SONYDIR=$REUSE_SONY; echo "== reusing Sony capture $SONYDIR"
+    cleanup(){ echo "== cleanup: stop engine"; engine_stop; }
+    trap cleanup EXIT
+  else
+    SONYDIR=$out/sony
+    echo "== Sony settings snapshot $snap"; "$X1" snapshot "$snap" | grep -E 'saved' || { echo "snapshot failed"; exit 1; }
+    cleanup(){ echo "== cleanup: stop engine, restore Sony"; engine_stop; "$X1" restore "$snap" | grep -E 'RESTORED|FAIL'; }
+    trap cleanup EXIT
+    if [ "${ROUTE:-game_plus}" != keep ]; then echo "== Sony route ${ROUTE:-game_plus}"; "$X1" route "${ROUTE:-game_plus}" | grep PQSET; fi
+    "$X1" frmdly | grep Delay
+    echo "== A: Sony alone"; shoot "$out/sony" sony "$RSTEP" "$RPROBE" "${RTILES[@]}" || exit 1
+  fi
+  echo "== starting engine (full screen): JOPT='${JOPT:--Dx90.fastup=1}' ESET='${ESET:-di=3 motion=14 edge=100 sharp=50}'"
+  engine_start "$etag" | tee "$out/engine-start.txt"
+  grep -q CUSTOM_ACTIVE "$out/engine-start.txt" || { echo "engine did not start"; exit 1; }
+  echo "== B: engine"; shoot "$out/engine" engine "$RSTEP" "$RPROBE" "${RTILES[@]}" || exit 1
+  cleanup; trap - EXIT
+  echo "== compare"; python "$(win "$HERE")/x90shot_cmp.py" "$(win "$SONYDIR")" "$(win "$out")/engine" "$(win "$out")/cmp" --labels Sony Engine
+  printf 'JOPT=%s
+ESET=%s
+UPSH=%s
+DISH=%s
+ENGDEX=%s
+SONY=%s
+FUSH=%s
+SIZE=%sx%s
+' "${JOPT:--Dx90.fastup=1}" "${ESET:-di=3 motion=14 edge=100 sharp=50}" "${UPSH:-}" "${DISH:-default}" "${ENGDEX:-default}" "$SONYDIR" "${FUSH:-default}" "${OW:-1920}" "${OH:-1080}" > "$out/engine-config.txt"
+  echo "AB_DONE $out" ;;
+compare) python "$(win "$HERE")/x90shot_cmp.py" "$(win "$1")" "$(win "$2")" "$(win "$3")" --labels "${4:-A}" "${5:-B}" ;;
+validate)
+  echo "starting pattern Surface (removes itself; also stopped at the end)"
+  dev pattern 900; sleep 3; ok=1
+  for spec in "tall 1888 0 64 2160 1" "seam 1840 1040 160 80 1" "topleft 0 0 64 64 1" "botright 3776 2096 64 64 1" "whole 0 0 1920 2160 8"; do
+    set -- $spec
+    if [ "$1" = whole ]; then shoot "$HERE/shots/val-whole-$(date +%Y%m%d-%H%M%S)" val-whole 8 none "0 0 1920 2160 1" || ok=0
+    else shoot "$HERE/shots/val-$1-$(date +%Y%m%d-%H%M%S)" "val-$1" "$6" none "$2 $3 $4 $5 0" || ok=0; fi
+    python "$(win "$HERE")/x90shot_img.py" validate "$(win "$LAST_OUT")/meta.json" || ok=0
+  done
+  dev pattern-stop
+  [ $ok = 1 ] && echo X90SHOT_VALIDATE_PASS || { echo X90SHOT_VALIDATE_FAIL; exit 3; } ;;
+status)  dev status ;;
+abort)   "$MB" -t 20 "echo 1 > /sys/module/x90shot/parameters/abort; cat /sys/module/x90shot/parameters/status" ;;
+finish)  dev finish ;;
+help|*)  sed -n '2,24p' "$0" | sed 's/^# \{0,1\}//' ;;
+esac
