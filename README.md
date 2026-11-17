@@ -38,6 +38,7 @@ work.
 | [docs/BOOTLOADER.md](docs/BOOTLOADER.md) | AVB, U-Boot env, S11, fastboot surface, misc/AB0, boot_b |
 | [docs/RECOVERY.md](docs/RECOVERY.md) | Boot flow, post-wipe analysis, the 2026-11-17 loop, repair options |
 | [docs/X1-PICTURE.md](docs/X1-PICTURE.md) | X90H Picture Control v0.2.0 and the 84-key PQ surface |
+| [docs/USER-CLAIMS.md](docs/USER-CLAIMS.md) | The owner's claim input (source material, not analysis) |
 | [docs/X1-DEFECTS.md](docs/X1-DEFECTS.md) | Four public defect claims, with PROVEN/CANDIDATE/OPEN labels |
 | [docs/TOOLS.md](docs/TOOLS.md) | The tools included here and what they need |
 | [docs/EVIDENCE-POLICY.md](docs/EVIDENCE-POLICY.md) | What is public, what stays private, and how measurements are labelled |
