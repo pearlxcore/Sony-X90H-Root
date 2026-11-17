@@ -24,8 +24,12 @@ After a later patched-boot experiment, the TV stopped here:
 - the panel, backlight and power supply are fine; this is a software/firmware
   boot loop.
 
-The last confirmed boot state before the loop was orange/unlocked with a patched
-boot written and read back. `boot_a` is now stock-or-patched, unknown.
+The unlock itself worked: at 03:39 the TV booted orange/unlocked on a stock
+boot. The loop followed writing the patched `boot_a` (`23543a64...`), built to
+add `/adb_keys`, `/force_debuggable` and `/adb_debug.prop` for ADB access in
+recovery, then rebooting. The recovery/factory-restore stage and the
+`boot-recovery` BCB are the loop mechanism. `boot_a` is now stock-or-patched,
+unknown. This is not evidence that the unlock failed.
 
 ### Root cause (off-line analysis)
 
