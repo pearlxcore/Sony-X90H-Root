@@ -11,9 +11,19 @@
   - [RECOVERY.md](RECOVERY.md)
   - [X1-PICTURE.md](X1-PICTURE.md)
   - [X1-DEFECTS.md](X1-DEFECTS.md)
+  - [USER-CLAIMS.md](USER-CLAIMS.md)
   - [TOOLS.md](TOOLS.md)
   - [EVIDENCE-POLICY.md](EVIDENCE-POLICY.md)
   - [EXPLOIT-HISTORY.md](EXPLOIT-HISTORY.md)
+- Added technical notes:
+  - [ROOT-CODE.md](ROOT-CODE.md)
+  - [BOOTLOADER-TECHNICAL.md](BOOTLOADER-TECHNICAL.md)
+  - [RECOVERY-TECHNICAL.md](RECOVERY-TECHNICAL.md)
+  - [X1-TECHNICAL.md](X1-TECHNICAL.md)
+  - [CODE-MAP.md](CODE-MAP.md)
+- Added tools:
+  - `tools/bootloader/uboot_env.py` (U-Boot env parser/CRC)
+  - `tools/recovery/misc_patch.py` (surgical `misc` BCB clear)
 - Added selected first-party tools under `tools/`.
 - Verified the exploit source is the original v21:
   - source blob `963f74d4...`, 47,942 bytes;

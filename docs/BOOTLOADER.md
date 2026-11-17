@@ -4,6 +4,9 @@ This page records what was learned about the boot chain on the Sony X90H /
 KD-55X9000H, firmware `626241` / kernel `4.19.260-ab626241`. It is analysis and
 a warning, not a flashing guide.
 
+Technical detail - U-Boot env format/CRC, the `misc` struct and the fastboot
+gating pseudocode - is in [BOOTLOADER-TECHNICAL.md](BOOTLOADER-TECHNICAL.md).
+
 > The bootloader experiment (S11) is closed. It produced `orange/unlocked` but
 > skipped official provisioning, broke the TEE/keymaster path, and a lock revert
 > caused a boot loop. Do not repeat it on a daily-use TV.
@@ -24,7 +27,8 @@ use a route that does not require flashing.
 
 ## U-Boot environment
 
-- `uboot_env_a` is a 128 KiB plaintext environment with a CRC32.
+- The environment occupies the first 128 KiB of `uboot_env_a`; it is plaintext
+  with a CRC32.
 - Variables include `bootcmd`, `bootdelay` and `devicestate`.
 - The bootloader reads it and does not rewrite it.
 - There is no signature on the environment. That is the integrity weakness S11

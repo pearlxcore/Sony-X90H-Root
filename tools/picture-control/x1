@@ -14,7 +14,7 @@
 #   x1 restore [name]             re-apply a saved restore point and verify
 #   x1 route standard|game|game_plus     apply a persistent picture route
 #   x1 route hybrid on|off|load|unload   advanced: Standard picture + MEMC game mode (x90mjcg.ko)
-#   x1 measure [tag] ["key=val ..."]     stimulus->panel latency (needs active input signal)
+#   x1 measure [tag] ["key=val ..."]     private latency rig; not included
 #   x1 deploy                     push the device worker + PQTool + key list to the device
 # Rules: snapshot before changing; perm/DRM is never touched; routes/sets are reversible.
 set -u

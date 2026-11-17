@@ -7,6 +7,9 @@ in a recovery loop when the audit was written, so no live test was possible.
 The owner's claim input is preserved separately in
 [USER-CLAIMS.md](USER-CLAIMS.md); that page is source material, not analysis.
 
+The code and register-level detail behind these verdicts is in
+[X1-TECHNICAL.md](X1-TECHNICAL.md).
+
 Firmware: `STT2.230505.001.S137` / `626241`.
 
 ## Labels

@@ -4,12 +4,15 @@ X90H Picture Control is a small toolset over the TV's real picture path. It
 drives Sony's X1/MT5895 processing for the active input. It is not PS2-specific
 and it does not bypass Sony's processing.
 
+The code and register-level detail are in [X1-TECHNICAL.md](X1-TECHNICAL.md).
+
 ## Coverage
 
 - All 84 `g_video__` keys from the MediaTek TV configuration surface.
 - 82 settable; 2 are read-only version fields.
-- 12 groups: picture mode, detail, noise, motion, colour, dynamic contrast,
-  white balance, colour management, HDR, geometry, 3D legacy.
+- 12 key-bearing groups (11 settable + `meta_readonly`): picture mode, detail,
+  noise, motion, colour, dynamic contrast, white balance, colour management,
+  HDR, geometry, 3D legacy, meta_readonly.
 - Ranges, defaults and enum labels were read live and read-only with
   `MtkTvConfig.getMinMaxConfigValue`; no probe writes.
 - 9 keys are conditional (3D, HDR-on-SDR, certain aspect/overscan) and return

@@ -87,7 +87,7 @@ def state_script():
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=("snapshot", "watch"))
-    parser.add_argument("--adb", default="C:/tools/platform-tools/adb.exe")
+    parser.add_argument("--adb", default="adb")
     parser.add_argument("--serial", default="127.0.0.1:5555")
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--duration", type=int, default=240)
@@ -97,8 +97,8 @@ def main():
         parser.error("duration must be 1..900, interval 0.5..30")
     recovery = Path(__file__).resolve().parents[1]
     output = args.out.resolve()
-    if not output.is_relative_to(recovery / "evidence"):
-        parser.error("output must be inside RECOVERY/evidence")
+    if output.exists():
+        parser.error("output path already exists; choose a new directory")
     output.mkdir(parents=True, exist_ok=False)
     identity = shell(args, "getprop ro.build.fingerprint; sha256sum /vendor/lib/modules/dtv_driver.ko")
     write_json(output / "identity-before.json", identity)

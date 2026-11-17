@@ -14,6 +14,7 @@ installs a recovery, writes a partition or reboots the TV.
 | `resolve_boot_literals.py` | Init literal resolution |
 | `demonstrate_format_preservation.py` | Host ext4 format experiment |
 | `map_usb_storage.py` | Adopted USB/OTG mapping |
+| `misc_patch.py` | Surgical `misc` BCB clear; preserves AB0 at `0x800` |
 
 ## What the investigation established
 
