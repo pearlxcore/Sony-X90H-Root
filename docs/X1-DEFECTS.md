@@ -4,6 +4,9 @@ This is a static analysis of four public X90H/X9000H defect claims against the
 firmware held for this unit. It is not a panel measurement. The TV was already
 in a recovery loop when the audit was written, so no live test was possible.
 
+The owner's claim input is preserved separately in
+[USER-CLAIMS.md](USER-CLAIMS.md); that page is source material, not analysis.
+
 Firmware: `STT2.230505.001.S137` / `626241`.
 
 ## Labels
