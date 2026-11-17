@@ -39,6 +39,21 @@ because `/data` had been re-provisioned under the unlocked state.
 Recovery from that historical S11 loop was the hold-power factory wipe. See
 [RECOVERY.md](RECOVERY.md). That is not the same as the later 2026-11-17 loop.
 
+## What the unlock did and did not do
+
+- The environment edit was performed more than once. The TV was observed in
+  both green/locked and orange/unlocked states.
+- On 2026-11-17 the unlock was confirmed again: orange/unlocked on a **stock**
+  boot at 03:39, before the patched boot was written.
+- The current recovery loop is **not** evidence that the unlock failed. It
+  followed writing the patched `boot_a` (`23543a64...`), built to add
+  `/adb_keys`, `/force_debuggable` and `/adb_debug.prop` for ADB access in
+  recovery, then rebooting.
+- The loop mechanism is the recovery/factory-restore stage: `misc` carries
+  `boot-recovery`, recovery mounts the recipe partition read-only and runs
+  `dtv_driver` with `osd_ota_stage=1`.
+- The unlock state is orange/unlocked. `boot_a` is stock-or-patched, unknown.
+
 ## Fastboot surface
 
 The fastboot command surface was analysed from the shipped U-Boot source and
