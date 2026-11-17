@@ -6,6 +6,7 @@ in a recovery loop when the audit was written, so no live test was possible.
 
 The owner's claim input is preserved separately in
 [USER-CLAIMS.md](USER-CLAIMS.md); that page is source material, not analysis.
+The short answer table is in [CLAIM-ANSWERS.md](CLAIM-ANSWERS.md).
 
 The code and register-level detail behind these verdicts is in
 [X1-TECHNICAL.md](X1-TECHNICAL.md).
