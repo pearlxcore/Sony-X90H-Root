@@ -1,0 +1,1196 @@
+{
+ "name": "X90H Picture Control",
+ "version": "0.2.0",
+ "scope": "x90h-internal",
+ "generated": "2026-11-17",
+ "summary": "Machine-readable control surface for the Sony X1 / MT5895 picture path. The complete set of settable picture settings (all g_video__ config keys), each with its exact range, default and group, discovered read-only via MtkTvConfig.getMinMaxConfigValue / getConfigValue / getConfigDefaultValue. Input-agnostic: settings are per input.",
+ "scope_note": "These keys control SONY'S picture path for the ACTIVE INPUT (any HDMI/source, not specific to one console). Settings are per-input and persist (Sony's own setConfigValue). Reality Creation / MotionFlow / NR run on Sony's MediaTek silicon; a GPU overlay would bypass them. Ranges/defaults are from a live read-only sweep on this firmware; a value of max==0 (e.g. allm_mode on a 480i input) means the control is unavailable on that input/signal. meta_readonly keys are version fields, not controls.",
+ "device": {
+  "model": "Sony KD-55X9000H (BRAVIA_VH1, MT5895 / X1)",
+  "android": 12,
+  "firmware_fingerprint": "Sony/BRAVIA_VH1_PA/BRAVIA_VH1:12/STT2.230505.001.S137/626241:user/release-keys",
+  "dtv_driver_ko_sha256": "97738790f18837a41cc1fad9da11657210b5462d29882e272928a8187f9b7125",
+  "note": "This control surface MUST verify firmware_fingerprint and dtv_driver_ko_sha256 before acting. All addresses/offsets/struct layouts below are valid ONLY for this fingerprint+hash. On a mismatch, refuse."
+ },
+ "preconditions": {
+  "root": "prod_exploit_v21 keeper running (uid 0, u:r:init:s0), reached via the mailbox /data/local/tests/x90cmd. Per-boot; ~2 min after a reboot.",
+  "input": "Picture settings are PER INPUT; confirm the SOURCE line of a snapshot and use the inputGroup argument (-1 = active input) to target a specific input.",
+  "signal_for_latency": "Latency measurement needs an active signal on HDMI4 (VERIFIED_480I for the PS2 480i60 case)."
+ },
+ "safety": {
+  "never_touch": [
+   "perm partition (DRM: widevine/playready/netflix) - not even read",
+   "TEE/TrustZone/keymaster/RPMB",
+   "firmware signing",
+   "EEPROM raw writes"
+  ],
+  "forbidden_commands": [
+   "sopq.prxy.cust_function.get_all (reboots the TV)",
+   "bare recursive ls/grep/find as root (wedges the single-threaded keeper)"
+  ],
+  "discipline": "Every change: snapshot -> set -> (measure) -> restore -> verify the 20-key snapshot is byte-identical. The CLI does this automatically for temporary/measure paths.",
+  "reversible_tiers": {
+   "config": "setConfigValue keys below - safe, official, persistent, individually reversible.",
+   "runtime_module": "x90mjcg.ko hybrid - loads stock-function-calling kernel code; reversible but advanced. Marked tier=advanced."
+  }
+ },
+ "control_paths": {
+  "persistent": {
+   "how": "com.mediatek.twoworlds.tv.MtkTvConfig.setConfigValue(key, value)  (isUpdate=3). Exactly the call Sony's own settings UI makes.",
+   "effect": "Writes eeprom_A immediately; survives reboot. Proven across a reboot 2026-11-16.",
+   "device_recipe": "runcon u:r:sony_platform_app:s0:c512,c768 env -u LD_LIBRARY_PATH CLASSPATH=/data/local/tests/pqset.dex:/vendor/framework/com.mediatek.twoworlds.tv.jar timeout 25 app_process /system/bin PQSetOnce <key> <value>",
+   "per_slot": "Writes the slot for the CURRENT input AND current picture mode. Setting a key while in Game edits Game's slot."
+  },
+  "read": {
+   "pq_snapshot": "runcon u:r:sony_platform_app:s0:c512,c768 env LD_LIBRARY_PATH=/vendor/lib:/system/lib /data/local/tests/x90-pq-hdmi4-orig snapshot  (20 keys + SOURCE + SIGNAL)",
+   "engine_struct": "/data/local/tests/mtalc 'sopq.prxy.ui.pic'  then dmesg  (full CUST_PIC_SETTING_T)",
+   "frame_delay": "/data/local/tests/mtalc 'sopq.prxy.api.oth.frmdly'  then dmesg  -> 'GetVideoFrameDelay: MCVP=<di> SCL=<scaler> MJC=<memc>' in x10 frames"
+  },
+  "runtime_only_avoid": {
+   "ioctl_0x200fe": "x90cust set 0x200fe 112 <hex> writes the whole struct into BEPQ. RAM-only, bypasses Sony's store, can desync engine from the official values. Experiments only; never for presets.",
+   "calibration_api": "Sony PictureQualityController (ACTION_BIND_PICTURE_QUALITY_CONTROL) is gated by a Sony whitelist + trusted-cert check. NOT usable by the debug-signed Toolbox."
+  }
+ },
+ "tool": {
+  "name": "PQTool",
+  "dex": "tools/pqtool.dex (built from tools/PQTool.java)",
+  "verbs": "get|default|minmax|dump|set <key> [val] [inputGroup]  (get/default/minmax/dump are read-only)",
+  "run": "runcon u:r:sony_platform_app:s0:c512,c768 env -u LD_LIBRARY_PATH CLASSPATH=<dex>:/vendor/framework/com.mediatek.twoworlds.tv.jar app_process /system/bin PQTool"
+ },
+ "groups": [
+  "3d_legacy",
+  "color",
+  "color_management",
+  "contrast_dynamic",
+  "detail",
+  "geometry",
+  "hdr",
+  "meta_readonly",
+  "motion",
+  "noise",
+  "other",
+  "picture_mode",
+  "white_balance"
+ ],
+ "keys": [
+  {
+   "key": "g_video__3d_distance",
+   "group": "3d_legacy",
+   "type": "range",
+   "min": 2,
+   "max": 18,
+   "default": 0,
+   "current_at_sweep": 10,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__3d_fld_depth",
+   "group": "3d_legacy",
+   "type": "range",
+   "min": 0,
+   "max": 2,
+   "default": 0,
+   "current_at_sweep": 1,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__3d_fpr",
+   "group": "3d_legacy",
+   "type": "range",
+   "min": 0,
+   "max": 2,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__3d_glasses",
+   "group": "3d_legacy",
+   "type": "range",
+   "min": 0,
+   "max": 2,
+   "default": 1,
+   "current_at_sweep": 1,
+   "persist": true,
+   "settable": true,
+   "conditional": true
+  },
+  {
+   "key": "g_video__3d_img_safety",
+   "group": "3d_legacy",
+   "type": "range",
+   "min": 0,
+   "max": 3,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__3d_lr_swtch",
+   "group": "3d_legacy",
+   "type": "range",
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__3d_mode",
+   "group": "3d_legacy",
+   "type": "range",
+   "min": 0,
+   "max": 3,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__3d_nav",
+   "group": "3d_legacy",
+   "type": "range",
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__3d_nav_auto",
+   "group": "3d_legacy",
+   "type": "range",
+   "min": 0,
+   "max": 2,
+   "default": 0,
+   "current_at_sweep": 1,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__3d_osd_depth",
+   "group": "3d_legacy",
+   "type": "range",
+   "min": 0,
+   "max": 32,
+   "default": 0,
+   "current_at_sweep": 16,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__3d_protrude",
+   "group": "3d_legacy",
+   "type": "signed_range",
+   "min": -2,
+   "max": 2,
+   "default": 16,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "conditional": true
+  },
+  {
+   "key": "g_video__3d_to_2d",
+   "group": "3d_legacy",
+   "type": "range",
+   "min": 0,
+   "max": 2,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__adv.contrast_enhancer",
+   "group": "contrast_dynamic",
+   "type": "range",
+   "min": 0,
+   "max": 3,
+   "default": 2,
+   "current_at_sweep": 2,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__allm_mode",
+   "group": "motion",
+   "type": "enum",
+   "min": 0,
+   "max": 0,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Auto Low Latency Mode (HDMI 2.1). max=0 on this input/signal = not available here."
+  },
+  {
+   "key": "g_video__auto_adjustment",
+   "group": "geometry",
+   "type": "enum",
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__black_corrector",
+   "group": "contrast_dynamic",
+   "type": "range",
+   "min": 0,
+   "max": 3,
+   "default": 2,
+   "current_at_sweep": 2,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__brightness",
+   "group": "contrast_dynamic",
+   "type": "range",
+   "min": 0,
+   "max": 100,
+   "default": 50,
+   "current_at_sweep": 50,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__cine_motion",
+   "group": "motion",
+   "type": "enum",
+   "min": 0,
+   "max": 4,
+   "default": 4,
+   "current_at_sweep": 4,
+   "persist": true,
+   "settable": true,
+   "note": "Film cadence. Forced to 0 in Game."
+  },
+  {
+   "key": "g_video__clear_white",
+   "group": "detail",
+   "type": "range",
+   "min": 0,
+   "max": 2,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Clear White enhancement."
+  },
+  {
+   "key": "g_video__color_adj_bri_b",
+   "group": "color_management",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Colour-management bri adjust, B axis (signed)."
+  },
+  {
+   "key": "g_video__color_adj_bri_cy",
+   "group": "color_management",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Colour-management bri adjust, CY axis (signed)."
+  },
+  {
+   "key": "g_video__color_adj_bri_g",
+   "group": "color_management",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Colour-management bri adjust, G axis (signed)."
+  },
+  {
+   "key": "g_video__color_adj_bri_mg",
+   "group": "color_management",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Colour-management bri adjust, MG axis (signed)."
+  },
+  {
+   "key": "g_video__color_adj_bri_r",
+   "group": "color_management",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Colour-management bri adjust, R axis (signed)."
+  },
+  {
+   "key": "g_video__color_adj_bri_ye",
+   "group": "color_management",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Colour-management bri adjust, YE axis (signed)."
+  },
+  {
+   "key": "g_video__color_adj_hue_b",
+   "group": "color_management",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Colour-management hue adjust, B axis (signed)."
+  },
+  {
+   "key": "g_video__color_adj_hue_cy",
+   "group": "color_management",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Colour-management hue adjust, CY axis (signed)."
+  },
+  {
+   "key": "g_video__color_adj_hue_g",
+   "group": "color_management",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Colour-management hue adjust, G axis (signed)."
+  },
+  {
+   "key": "g_video__color_adj_hue_mg",
+   "group": "color_management",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Colour-management hue adjust, MG axis (signed)."
+  },
+  {
+   "key": "g_video__color_adj_hue_r",
+   "group": "color_management",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Colour-management hue adjust, R axis (signed)."
+  },
+  {
+   "key": "g_video__color_adj_hue_ye",
+   "group": "color_management",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Colour-management hue adjust, YE axis (signed)."
+  },
+  {
+   "key": "g_video__color_adj_sat_b",
+   "group": "color_management",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Colour-management sat adjust, B axis (signed)."
+  },
+  {
+   "key": "g_video__color_adj_sat_cy",
+   "group": "color_management",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Colour-management sat adjust, CY axis (signed)."
+  },
+  {
+   "key": "g_video__color_adj_sat_g",
+   "group": "color_management",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Colour-management sat adjust, G axis (signed)."
+  },
+  {
+   "key": "g_video__color_adj_sat_mg",
+   "group": "color_management",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Colour-management sat adjust, MG axis (signed)."
+  },
+  {
+   "key": "g_video__color_adj_sat_r",
+   "group": "color_management",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Colour-management sat adjust, R axis (signed)."
+  },
+  {
+   "key": "g_video__color_adj_sat_ye",
+   "group": "color_management",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Colour-management sat adjust, YE axis (signed)."
+  },
+  {
+   "key": "g_video__color_gain_b",
+   "group": "white_balance",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "WB gain B."
+  },
+  {
+   "key": "g_video__color_gain_g",
+   "group": "white_balance",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "WB gain G."
+  },
+  {
+   "key": "g_video__color_gain_r",
+   "group": "white_balance",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "2-point white balance, high (gain) R."
+  },
+  {
+   "key": "g_video__color_offset_b",
+   "group": "white_balance",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "WB bias B."
+  },
+  {
+   "key": "g_video__color_offset_g",
+   "group": "white_balance",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "WB bias G."
+  },
+  {
+   "key": "g_video__color_offset_r",
+   "group": "white_balance",
+   "type": "signed_range",
+   "min": -128,
+   "max": 127,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "2-point white balance, low (bias) R."
+  },
+  {
+   "key": "g_video__color_temperature",
+   "group": "color",
+   "type": "range",
+   "min": 0,
+   "max": 4,
+   "default": 1,
+   "current_at_sweep": 1,
+   "persist": true,
+   "settable": true,
+   "note": "Colour temperature preset (Cool..Warm range)."
+  },
+  {
+   "key": "g_video__colour",
+   "group": "color",
+   "type": "range",
+   "min": 0,
+   "max": 100,
+   "default": 60,
+   "current_at_sweep": 60,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__contrast",
+   "group": "contrast_dynamic",
+   "type": "range",
+   "min": 0,
+   "max": 100,
+   "default": 90,
+   "current_at_sweep": 90,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__display_area",
+   "group": "geometry",
+   "type": "enum",
+   "min": 0,
+   "max": 4,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "conditional": true,
+   "note": "Display area / overscan preset."
+  },
+  {
+   "key": "g_video__dolby_pic_mode",
+   "group": "picture_mode",
+   "type": "enum",
+   "min": 0,
+   "max": 15,
+   "default": 0,
+   "current_at_sweep": 10,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__dynamic_range",
+   "group": "hdr",
+   "type": "enum",
+   "min": 0,
+   "max": 2,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Dynamic range (HDR path)."
+  },
+  {
+   "key": "g_video__gamma",
+   "group": "color",
+   "type": "signed_range",
+   "min": -3,
+   "max": 3,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Gamma offset, signed (-3 dark .. +3 bright)."
+  },
+  {
+   "key": "g_video__hdr_sdr",
+   "group": "hdr",
+   "type": "enum",
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__hdr_tone_mapping",
+   "group": "hdr",
+   "type": "enum",
+   "min": 0,
+   "max": 3,
+   "default": -1,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "conditional": true
+  },
+  {
+   "key": "g_video__horizontal_shift",
+   "group": "geometry",
+   "type": "signed_range",
+   "min": -5,
+   "max": 5,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Image H position."
+  },
+  {
+   "key": "g_video__hue",
+   "group": "color",
+   "type": "signed_range",
+   "min": -50,
+   "max": 50,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Tint, signed."
+  },
+  {
+   "key": "g_video__intel_picture_plus",
+   "group": "detail",
+   "type": "range",
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "conditional": true
+  },
+  {
+   "key": "g_video__led_dynamic_ctl",
+   "group": "contrast_dynamic",
+   "type": "range",
+   "min": 0,
+   "max": 3,
+   "default": 2,
+   "current_at_sweep": 2,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__led_motion_mode",
+   "group": "motion",
+   "type": "enum",
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "LED motion / black-frame insertion (0 off, 1 on)."
+  },
+  {
+   "key": "g_video__live_color",
+   "group": "color",
+   "type": "range",
+   "min": 0,
+   "max": 3,
+   "default": 2,
+   "current_at_sweep": 2,
+   "persist": true,
+   "settable": true,
+   "note": "Live Colour / vividness."
+  },
+  {
+   "key": "g_video__mastered_4k",
+   "group": "detail",
+   "type": "range",
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "conditional": true,
+   "note": "Mastered in 4K detail mode (0 off, 1 on)."
+  },
+  {
+   "key": "g_video__moti_fl_clearness",
+   "group": "motion",
+   "type": "enum",
+   "min": 0,
+   "max": 3,
+   "default": 1,
+   "current_at_sweep": 1,
+   "persist": true,
+   "settable": true,
+   "note": "MotionFlow Custom sub-dial: clarity / black-frame insertion, 0..3. Active when motion_flow=6. Higher clearness trades brightness for motion clarity."
+  },
+  {
+   "key": "g_video__moti_fl_smoothnes",
+   "group": "motion",
+   "type": "enum",
+   "min": 0,
+   "max": 3,
+   "default": 2,
+   "current_at_sweep": 3,
+   "persist": true,
+   "settable": true,
+   "note": "MotionFlow Custom sub-dial: interpolation strength, 0=min .. 3=max smoothest. Only active when motion_flow=6 (Custom)."
+  },
+  {
+   "key": "g_video__motion_flow",
+   "group": "motion",
+   "type": "enum",
+   "min": 0,
+   "max": 7,
+   "default": 7,
+   "current_at_sweep": 6,
+   "persist": true,
+   "settable": true,
+   "enum": {
+    "0": "Off",
+    "1": "Standard",
+    "2": "Smooth",
+    "3": "Clear",
+    "4": "Impulse",
+    "5": "True Cinema",
+    "6": "Custom",
+    "7": "Auto"
+   },
+   "note": "ACFG value == engine value, identity. Earlier '6 == Off' was WRONG. MotionFlow does NOT change latency (the MEMC buffer is allocated in Standard regardless)."
+  },
+  {
+   "key": "g_video__mpeg_noise_reduction",
+   "group": "noise",
+   "type": "range",
+   "min": 0,
+   "max": 4,
+   "default": 4,
+   "current_at_sweep": 4,
+   "persist": true,
+   "settable": true,
+   "note": "Forced to 0 in Game."
+  },
+  {
+   "key": "g_video__noise_filtering",
+   "group": "noise",
+   "type": "range",
+   "min": 1,
+   "max": 100,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "conditional": true,
+   "note": "Random-noise filter strength; 0 = off, 1..100 active."
+  },
+  {
+   "key": "g_video__noise_reduction",
+   "group": "noise",
+   "type": "range",
+   "min": 0,
+   "max": 4,
+   "default": 4,
+   "current_at_sweep": 4,
+   "persist": true,
+   "settable": true,
+   "note": "Forced to 0 in Game."
+  },
+  {
+   "key": "g_video__nor_pic_mode",
+   "group": "picture_mode",
+   "type": "enum",
+   "min": 0,
+   "max": 15,
+   "default": 1,
+   "current_at_sweep": 1,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__pc_wide_mode",
+   "group": "geometry",
+   "type": "enum",
+   "min": 0,
+   "max": 2,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "conditional": true,
+   "note": "PC wide mode."
+  },
+  {
+   "key": "g_video__pic_mode",
+   "group": "picture_mode",
+   "type": "enum",
+   "min": 0,
+   "max": 15,
+   "default": 1,
+   "current_at_sweep": 1,
+   "persist": true,
+   "settable": true,
+   "enum": {
+    "1": "Standard",
+    "3": "Game"
+   },
+   "note": "THE route selector. Decides latency (see routes). Game clamps NR/MPEG NR/film to 0 and shortens the deinterlacer."
+  },
+  {
+   "key": "g_video__picture_version",
+   "group": "meta_readonly",
+   "type": "readonly",
+   "min": 0,
+   "max": 255,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": false,
+   "note": "Read-only picture config version."
+  },
+  {
+   "key": "g_video__reality_creation",
+   "group": "detail",
+   "type": "enum",
+   "min": 0,
+   "max": 2,
+   "default": 2,
+   "current_at_sweep": 2,
+   "persist": true,
+   "settable": true,
+   "enum": {
+    "0": "Off",
+    "1": "Manual",
+    "2": "Auto"
+   },
+   "note": "Works at full strength even in Game mode (register-proven). Game's DEFAULT is effectively Off (Manual + resolution 10) - set =2 explicitly for Sony upscaling."
+  },
+  {
+   "key": "g_video__resolution",
+   "group": "detail",
+   "type": "range",
+   "min": 1,
+   "max": 100,
+   "default": 65,
+   "current_at_sweep": 65,
+   "persist": true,
+   "settable": true,
+   "note": "RC manual detail amount. Standard default 65; Game default 10 (another reason Game looks soft by default)."
+  },
+  {
+   "key": "g_video__scene_sel_auto",
+   "group": "picture_mode",
+   "type": "enum",
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__scene_select",
+   "group": "picture_mode",
+   "type": "enum",
+   "min": 0,
+   "max": 2,
+   "default": 1,
+   "current_at_sweep": 1,
+   "persist": true,
+   "settable": true,
+   "note": "Scene select."
+  },
+  {
+   "key": "g_video__screen_auto_wide",
+   "group": "geometry",
+   "type": "enum",
+   "min": 0,
+   "max": 1,
+   "default": 1,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__screen_mode",
+   "group": "geometry",
+   "type": "enum",
+   "min": 5,
+   "max": 13,
+   "default": 5,
+   "current_at_sweep": 7,
+   "persist": true,
+   "settable": true,
+   "note": "Aspect/wide mode."
+  },
+  {
+   "key": "g_video__screen_version",
+   "group": "meta_readonly",
+   "type": "readonly",
+   "min": 0,
+   "max": 0,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": false,
+   "note": "Read-only screen config version."
+  },
+  {
+   "key": "g_video__sharpness",
+   "group": "detail",
+   "type": "range",
+   "min": 0,
+   "max": 100,
+   "default": 60,
+   "current_at_sweep": 65,
+   "persist": true,
+   "settable": true,
+   "note": "HDMI4 Standard default 65; Game default 50."
+  },
+  {
+   "key": "g_video__smooth_graddation",
+   "group": "detail",
+   "type": "range",
+   "min": 0,
+   "max": 4,
+   "default": 0,
+   "current_at_sweep": 1,
+   "persist": true,
+   "settable": true,
+   "note": "Smooth gradation / banding reduction (note the firmware's spelling)."
+  },
+  {
+   "key": "g_video__ssa_pic_md_st",
+   "group": "picture_mode",
+   "type": "enum",
+   "min": 0,
+   "max": 1,
+   "default": 0,
+   "current_at_sweep": 1,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__ssa_pic_mode",
+   "group": "picture_mode",
+   "type": "enum",
+   "min": 0,
+   "max": 15,
+   "default": 0,
+   "current_at_sweep": 1,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__transfer_function",
+   "group": "hdr",
+   "type": "enum",
+   "min": 0,
+   "max": 4,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true
+  },
+  {
+   "key": "g_video__vertical_shift",
+   "group": "geometry",
+   "type": "signed_range",
+   "min": -5,
+   "max": 5,
+   "default": 0,
+   "current_at_sweep": 0,
+   "persist": true,
+   "settable": true,
+   "note": "Image V position."
+  },
+  {
+   "key": "g_video__vertical_size",
+   "group": "geometry",
+   "type": "signed_range",
+   "min": -5,
+   "max": 5,
+   "default": -3,
+   "current_at_sweep": -3,
+   "persist": true,
+   "settable": true,
+   "conditional": true,
+   "note": "Image V size (overscan)."
+  },
+  {
+   "key": "g_video__xdr",
+   "group": "contrast_dynamic",
+   "type": "range",
+   "min": 0,
+   "max": 3,
+   "default": 2,
+   "current_at_sweep": 2,
+   "persist": true,
+   "settable": true,
+   "note": "X-tended Dynamic Range. Applied even in Game."
+  }
+ ],
+ "routes": [
+  {
+   "name": "standard",
+   "pic_mode": 1,
+   "latency_ms_median": 178,
+   "latency_range_ms": [
+    165,
+    185
+   ],
+   "frame_delay": {
+    "mcvp": 29,
+    "scl": 0,
+    "mjc": 39
+   },
+   "quality": "Full deinterlacer + NR + film + RC. Best picture, worst latency. Reference / films.",
+   "set": [
+    [
+     "g_video__pic_mode",
+     1
+    ]
+   ]
+  },
+  {
+   "name": "game",
+   "pic_mode": 3,
+   "latency_ms_median": 32,
+   "latency_range_ms": [
+    23,
+    44
+   ],
+   "frame_delay": {
+    "mcvp": 9,
+    "scl": 0,
+    "mjc": 6
+   },
+   "quality": "Short DI, no temporal NR, no film cadence. Default RC effectively off.",
+   "set": [
+    [
+     "g_video__pic_mode",
+     3
+    ]
+   ]
+  },
+  {
+   "name": "game_plus",
+   "pic_mode": 3,
+   "latency_ms_median": 34,
+   "latency_range_ms": [
+    23,
+    45
+   ],
+   "frame_delay": {
+    "mcvp": 9,
+    "scl": 0,
+    "mjc": 6
+   },
+   "quality": "Game route WITH Sony's upscaler on: Reality Creation Auto + resolution 65 + sharpness 65. RC proven active at full strength. BEST candidate for 'Sony quality at low latency'. NR/film stay off (Sony clamps them).",
+   "set": [
+    [
+     "g_video__pic_mode",
+     3
+    ],
+    [
+     "g_video__reality_creation",
+     2
+    ],
+    [
+     "g_video__resolution",
+     65
+    ],
+    [
+     "g_video__sharpness",
+     65
+    ]
+   ]
+  },
+  {
+   "name": "hybrid",
+   "pic_mode": 1,
+   "tier": "advanced",
+   "latency_ms_median": 121,
+   "latency_range_ms": [
+    108,
+    132
+   ],
+   "frame_delay": {
+    "mcvp": 29,
+    "scl": 0,
+    "mjc": 7
+   },
+   "quality": "Standard picture (full DI + NR + film) with the MEMC block put in game mode via x90mjcg.ko. Only if Game's shorter deinterlacer looks worse. RAM-only; re-assert after input/timing/picture-mode change.",
+   "module": "x90mjcg.ko",
+   "set": [
+    [
+     "g_video__pic_mode",
+     1
+    ]
+   ]
+  }
+ ],
+ "reference": {
+  "custom_engine_latency_ms": {
+   "at_60hz_ui": [
+    57,
+    64
+   ],
+   "at_120hz_ui": 49,
+   "note": "From PS2/custom-engine 11-15 report. game_plus (34 ms) beats the engine on latency AND has Sony's upscaler."
+  },
+  "unresolved": "11-15 report quoted Sony Standard = 309 ms; did NOT reproduce 2026-11-16 (165-185 ms on two boots). Use 165-185.",
+  "latency_rig": "stimulus->panel, x90lat_stim.ko (d5b1e2a5) + x90lat_panel.ko (ca12113f), 12 edges, analysed by the private latency rig."
+ }
+}

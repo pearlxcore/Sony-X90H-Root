@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.o
+*.mod
+*.mod.c
+*.cmd
+.tmp_versions/
+build/
+shots/
+kbuild/

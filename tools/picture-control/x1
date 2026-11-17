@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+# x1 - X90H Picture Control CLI (x90h-internal). Host side; drives the TV over the root mailbox.
+# Controls SONY'S picture path for the ACTIVE INPUT (any HDMI/source; settings are per input).
+# Commands:
+#   x1 spec                       print the machine-readable spec (x1-spec.json)
+#   x1 list [group]               list controllable keys (optionally one group) with range/default
+#   x1 groups                     list the setting groups
+#   x1 check                      verify firmware + driver hash + root keeper + signal (read-only)
+#   x1 get [inputGroup]           print all current picture settings (read-only; -1 = active input)
+#   x1 minmax <key>               print one key's live min/max (read-only)
+#   x1 frmdly                     print the driver's latency breakdown MCVP/SCL/MJC (read-only)
+#   x1 set <key> <value> [input]  persistent set (official API) - validates against the spec
+#   x1 snapshot [name]            save a named restore point (all settable keys)
+#   x1 restore [name]             re-apply a saved restore point and verify
+#   x1 route standard|game|game_plus     apply a persistent picture route
+#   x1 route hybrid on|off|load|unload   advanced: Standard picture + MEMC game mode (x90mjcg.ko)
+#   x1 measure [tag] ["key=val ..."]     stimulus->panel latency (needs active input signal)
+#   x1 deploy                     push the device worker + PQTool + key list to the device
+# Rules: snapshot before changing; perm/DRM is never touched; routes/sets are reversible.
+set -u
+KIT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+X1EX="$KIT/../modules"
+ADB="${ADB:-adb} -s ${TV_SERIAL:-127.0.0.1:5555}"
+RUN="$KIT/lib/x1sh.sh"
+dev(){ "$RUN" -t "${TIMEOUT:-60}" "sh /data/local/tests/x1kit/x1-device.sh $*" | grep -v '^uid='; }
+win(){ printf '%s' "$1" | sed -E 's#^/([a-z])/#\U\1:/#'; }
+SPEC="$(win "$KIT/x1-spec.json")"
+
+cmd="${1:-help}"; shift || true
+case "$cmd" in
+spec)    cat "$KIT/x1-spec.json" ;;
+groups)  python -c "import json,sys;print('\n'.join(json.load(open(sys.argv[1]))['groups']))" "$SPEC" ;;
+list)
+  python - "$SPEC" "${1:-}" <<'PY'
+import json,sys
+spec=json.load(open(sys.argv[1])); grp=sys.argv[2] if len(sys.argv)>2 else ""
+for k in spec["keys"]:
+    if grp and k["group"]!=grp: continue
+    e=" ".join("%s=%s"%(v,l) for v,l in k.get("enum",{}).items())
+    ro="" if k["settable"] else "  (read-only)"
+    print("%-32s %-16s [%4d..%4d] def %-4d %s%s"%(k["key"],k["group"],k["min"],k["max"],k["default"],e,ro))
+PY
+  ;;
+deploy)
+  export MSYS_NO_PATHCONV=1
+  $ADB shell 'mkdir -p /data/local/tests/x1kit /data/local/tests/x1b' >/dev/null
+  $ADB push "$(win "$KIT/lib/x1-device.sh")" /data/local/tests/x1kit/x1-device.sh
+  $ADB push "$(win "$KIT/lib/x1-keys.txt")" /data/local/tests/x1kit/x1-keys.txt
+  $ADB push "$(win "$KIT/tools/pqtool.dex")" /data/local/tests/pqtool.dex
+  [ -f "$X1EX/hyb.sh" ] && $ADB push "$(win "$X1EX/hyb.sh")" /data/local/tests/hyb.sh
+  [ -f "$X1EX/x90mjcg.ko" ] && $ADB push "$(win "$X1EX/x90mjcg.ko")" /data/local/tests/x1b/x90mjcg.ko
+  echo "deployed x1-device.sh + x1-keys.txt + pqtool.dex (+ hybrid helpers if present)" ;;
+check)   dev check ;;
+get)     dev get "${1:--1}" ;;
+minmax)  dev minmax "${1:?usage: x1 minmax <key>}" ;;
+frmdly)  dev frmdly ;;
+set)
+  key="${1:?usage: x1 set <key> <value> [inputGroup]}"; val="${2:?usage: x1 set <key> <value> [inputGroup]}"; grp="${3:--1}"
+  python - "$SPEC" "$key" "$val" <<'PY' || exit 1
+import json,sys
+spec,key,val=json.load(open(sys.argv[1])),sys.argv[2],sys.argv[3]
+k=next((k for k in spec["keys"] if k["key"]==key),None)
+if not k: sys.exit("unknown key %s (see: x1 list)"%key)
+if not k["settable"]: sys.exit("%s is read-only"%key)
+try: v=int(val)
+except: sys.exit("value must be an integer")
+if not (k["min"]<=v<=k["max"]): sys.exit("value %d out of range [%d,%d] for %s"%(v,k["min"],k["max"],key))
+PY
+  dev set "$key" "$val" "$grp" ;;
+snapshot) dev snapshot "${1:-default}" ;;
+restore)  TIMEOUT=150 dev restore "${1:-default}" ;;
+route)
+  r="${1:?usage: x1 route standard|game|game_plus|hybrid ...}"; shift || true
+  if [ "$r" = hybrid ]; then
+    sub="${1:?usage: x1 route hybrid on|off|load|unload}"
+    case "$sub" in
+      load)   "$RUN" -t 40 'PERMIT=1 sh /data/local/tests/hyb.sh load' | grep -v '^uid=' ;;
+      on|off|unload) "$RUN" -t 30 "sh /data/local/tests/hyb.sh $sub" | grep -v '^uid=' ;;
+      *) echo "hybrid: on|off|load|unload"; exit 1 ;;
+    esac
+  else TIMEOUT=90 dev route "$r"; fi ;;
+measure)
+  tag="${1:-m$(date +%H%M%S)}"; keys="${2:-none}"
+  echo "Latency measurement needs the private latency rig (runlat.sh + panel module); not included in this repository." >&2; exit 2 ;;
+help|*)
+  sed -n '2,24p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//' ;;
+esac
