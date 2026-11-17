@@ -11,7 +11,8 @@ display/
   split/            split-screen A/B
   refresh-120hz/    Android UI 120 Hz helper
 picture-control/    X90H Picture Control v0.2.0
-recovery/           read-only boot/wipe analysis
+bootloader/         U-Boot environment parser/CRC checker
+recovery/           read-only boot/wipe analysis + surgical misc patch
 capture/            X90CAP2 capture + cadence + x90-pq source
 analysis/           logcat config parser (other firmware-specific helpers private)
 modules/            experimental module sources

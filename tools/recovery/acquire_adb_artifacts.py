@@ -12,7 +12,7 @@ import subprocess
 
 HERE = Path(__file__).resolve().parents[1]
 OUT = HERE / "evidence/postwipe-analysis-20261116-1510"
-ADB = "C:/tools/platform-tools/adb.exe"
+ADB = "adb"
 SERIAL = "127.0.0.1:5555"
 FILES = {
     "adbd": "/apex/com.android.adbd/bin/adbd",

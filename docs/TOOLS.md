@@ -9,6 +9,7 @@ Risk labels:
 - **MUTATING** - changes display, picture, module state or a process.
 - **ROOT/REPAIR** - needs root, writes boot/recovery state, or can brick.
 - **HOST-ONLY** - runs on the PC and touches local files only.
+- **HOST-ONLY / WRITE** - runs on the PC and writes a new output file.
 
 ## Display and capture
 
@@ -38,7 +39,8 @@ before changing. Do not issue `sopq...get_all`.
 
 | Tool | Purpose | Risk | Needs |
 |---|---|---|---|
-| [recovery](../tools/recovery/) | Read-only boot-flow, first-boot, wipe and USB-storage analysis | READ-ONLY | A booted TV for acquisition; host for analysis |
+| [recovery](../tools/recovery/) | Read-only boot-flow analysis + surgical `misc` BCB patch | READ-ONLY / REPAIR | A booted TV for acquisition; a `misc` image for the patch |
+| [bootloader](../tools/bootloader/) | Parse and CRC-check a U-Boot environment block; optional new-file write | HOST-ONLY / WRITE | A `uboot_env_a` image |
 | [capture](../tools/capture/) | X90CAP2 capture, cadence/frame diagnostics, `x90-pq` source | MUTATING | Root, capture module |
 | [analysis](../tools/analysis/) | Logcat `MtkTvConfig` parser; other firmware-specific helpers are private | HOST-ONLY | A logcat dump |
 | [modules](../tools/modules/) | Sources for experimental modules and the MTAL ioctl client | MUTATING | Exact kernel/tree |

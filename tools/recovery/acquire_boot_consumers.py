@@ -8,7 +8,7 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT/'evidence/boot-consumers-20261116-1620/live'
-ADB = 'C:/tools/platform-tools/adb.exe'
+ADB = 'adb'
 SERIAL = '127.0.0.1:5555'
 FP = 'Sony/BRAVIA_VH1_PA/BRAVIA_VH1:12/STT2.230505.001.S137/626241:user/release-keys'
 SHA = '97738790f18837a41cc1fad9da11657210b5462d29882e272928a8187f9b7125'

@@ -8,7 +8,7 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "evidence/firstboot-maintenance-20261116-1544"
-ADB = "C:/tools/platform-tools/adb.exe"
+ADB = "adb"
 SERIAL = "127.0.0.1:5555"
 FILES = {
     "SonyVendorService.apk": "/vendor/app/SonyVendorService/SonyVendorService.apk",

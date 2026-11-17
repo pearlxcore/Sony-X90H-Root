@@ -5,7 +5,8 @@ reversibly, for any input. The PS2 was only the first test source.
 
 ## Coverage
 
-- All 84 `g_video__` keys; 82 settable; 12 groups.
+- All 84 `g_video__` keys; 82 settable; 12 key-bearing groups (11 settable plus
+  `meta_readonly`).
 - Ranges, defaults and enum labels read live and read-only.
 - 9 keys are conditional (3D, HDR-on-SDR, aspect) and return `rc=-3` outside
   their context.

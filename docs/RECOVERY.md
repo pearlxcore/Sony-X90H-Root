@@ -2,6 +2,9 @@
 
 This page separates two different recoveries. They are not interchangeable.
 
+Technical detail - the recovery rc, the BCB patch code and the partition
+offsets - is in [RECOVERY-TECHNICAL.md](RECOVERY-TECHNICAL.md).
+
 ## Case 1 - S11 relock boot loop (historical)
 
 After the S11 `devicestate` experiment, returning to `devicestate=lock` produced

@@ -58,7 +58,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("output", type=Path)
     parser.add_argument("--serial", default="127.0.0.1:5555")
-    parser.add_argument("--adb", default="C:/tools/platform-tools/adb.exe")
+    parser.add_argument("--adb", default="adb")
     args = parser.parse_args()
     if args.output.exists():
         raise SystemExit("Refusing to overwrite evidence")
