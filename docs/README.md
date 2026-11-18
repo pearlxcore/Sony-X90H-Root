@@ -24,7 +24,10 @@ A research record of:
 
 ## What it is not
 
-- Not a bootloader unlock.
+- Not an official bootloader unlock. S11 edited the unsigned U-Boot
+  environment so the bootloader reported `unlocked` / `orange`. That is not
+  vendor unlock provisioning, and it broke the TEE/keymaster path. See
+  [bootloader.md](bootloader.md).
 - Not a persistent root.
 - Not a custom kernel or a patched system/vendor image.
 - Not a DRM/TEE/keymaster/RPMB bypass.
