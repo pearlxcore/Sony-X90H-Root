@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-11-19 - TEE and Keymaster status
+
+- Added [tee-keymaster.md](tee-keymaster.md): offline status notes on the TEE
+  image, the two independent secure-world entry paths (Trusty IPC and MTAL
+  direct SMC), normal-world key storage, and the model-shared attestation
+  bundle.
+- States findings and limits only. No key material, cipher parameters, wrapped
+  blobs or complete port/command tables are published; the handling section
+  explains why. See [evidence-policy.md](evidence-policy.md).
+
 ## 2026-11-18 - research expansion
 
 - Split the long root write-up out of `README.md` into

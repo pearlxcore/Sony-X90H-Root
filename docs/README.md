@@ -85,4 +85,5 @@ wipe data or stop booting. The tools are not a product and have no warranty.
 - [Root stage map - S0 to S16](root-stages.md)
 - [Root channel qualification - 2026-11-16](root-test-results.md)
 - [Sony X90H (KD-55X9000H) root notes](root.md)
+- [TEE and Keymaster - status notes](tee-keymaster.md)
 - [Tools](tools.md)
