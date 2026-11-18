@@ -257,10 +257,8 @@ over the block, and a set of plaintext variables (`devicestate`, `bootcmd`,
 Editing `devicestate=lock` to `unlock` makes the bootloader show
 `unlocked`/`orange`. It skips the official unlock
 provisioning (keybox/RPMB), so the Trusty keymaster hangs in `generate_key`,
-setup and DRM break, the first boot takes over 4 hours, and returning to
-`lock` causes a boot loop. The `keystore2` watchdog showed `generate_key`
-pending 200 to 1,260 seconds; the setup wizard blocked on it and went black. Recovery for this S11 case was the hold-power-while-plugging factory
-wipe. `veritymode` stays `enforcing`, so AVB bypass was never proved. This is
+setup and DRM break, the first boot takes over 4 hours. The `keystore2` watchdog showed `generate_key`
+pending 200 to 1,260 seconds; the setup wizard blocked on it and went black. After relock and reset, the operator reached setup on normal power-on. `veritymode` stays `enforcing`, so AVB bypass was never proved. This is
 not the 2026-11-17 recovery loop; see [recovery.md](recovery.md).
 
 This stage is not part of the working chain. The env write is a real
@@ -363,12 +361,9 @@ adb shell cat /data/local/tests/x90log
 - **Don't kill the exploit parent** or close its fds. There is a
   `cgroup_sk_free` panic waiting there.
 - **Don't flip `devicestate` in the U-Boot env.** It shows `orange`, breaks
-  the TEE/keystore, wipes data, and can boot-loop. See the bootloader unlock
+  the TEE/keystore, and wipes data. See the bootloader unlock
   section below.
-- If it panics or boot-loops: **unplug the TV, hold the power button on the
-  TV, plug it back in, keep holding**. Expected: an "erasing" screen, then
-  setup. This is the recovery that worked for the S11 relock loop. It is not a
-  universal recovery; for the 2026-11-17 loop see [recovery.md](recovery.md).
+- For the corrected S11 sequence and the separate November recovery incident, see [recovery.md](recovery.md).
 
 ## The bootloader unlock attempt
 
@@ -395,14 +390,7 @@ keymaster then hung in `generate_key` (pending 200 to 1,260 seconds), the
 setup wizard black-screened and froze, and accounts/DRM/attestation were
 broken. The first boot took over 4 hours on the Android boot animation.
 
-Going back to `devicestate=lock` caused a boot loop at the Sony logo. The
-locked boot could not mount `/data` that had been re-provisioned under the
-unlocked state.
-
-Recovery for that S11 loop: unplug the TV, hold the power button on the TV, plug it back in,
-keep holding. The TV shows "erasing", wipes `/data`, reboots, and reaches
-setup. After that the bootloader showed `locked`/`green` again and keystore
-was healthy. This is not the 2026-11-17 loop; see [recovery.md](recovery.md).
+After relock and reset, a normal power-on reached setup. The later check recorded locked/green. See [the owner’s account](recovery.md).
 
 `veritymode` stayed `enforcing` throughout, so an AVB bypass was never proved.
 Do not do this on a daily-use TV.

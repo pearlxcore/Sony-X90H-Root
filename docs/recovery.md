@@ -5,17 +5,9 @@ This page separates two different recoveries. They are not interchangeable.
 Technical detail - the recovery rc, the BCB patch code and the partition
 offsets - is in [recovery-technical.md](recovery-technical.md).
 
-## Case 1 - S11 relock boot loop (historical)
+## Case 1 - S11 relock and return to setup
 
-After the S11 `devicestate` experiment, returning to `devicestate=lock` produced
-a Sony-logo boot loop. The recorded recovery was:
-
-1. Unplug the TV.
-2. Hold the power button on the TV.
-3. Plug the TV back in while still holding.
-4. The TV shows an erasing screen, wipes `/data`, reboots and reaches setup.
-
-That worked for the S11 case. It is **not** a universal recovery.
+S11 relock correction (owner account, 2026-11-18). The operator repeatedly held the TV power button while applying power. The animation continued and setup did not appear during those attempts. After moving the TV, the operator switched the extension on without holding the button and found the TV at setup. A USB firmware file had been present, but its role was never demonstrated. During a later green-to-orange transition the operator observed one reset combination, the erasing screen, a continuing animation, then powered off and started normally without holding the button. Android and setup appeared. The interval before power-off was not measured. The earlier S11 relock boot-loop diagnosis and explanations based on it are superseded. The November 17 frozen recovery-screen incident is separate.
 
 ## Case 2 - 2026-11-17 recovery loop (current incident)
 

@@ -8,8 +8,7 @@ Technical detail - U-Boot env format/CRC, the `misc` struct and the fastboot
 gating pseudocode - is in [bootloader-technical.md](bootloader-technical.md).
 
 > The bootloader experiment (S11) is closed. It produced `orange/unlocked` but
-> skipped official provisioning, broke the TEE/keymaster path, and a lock revert
-> caused a boot loop. Do not repeat it on a daily-use TV.
+> skipped official provisioning, broke the TEE/keymaster path. Do not repeat it on a daily-use TV.
 
 ## AVB state machine
 
@@ -37,11 +36,7 @@ use a route that does not require flashing.
 Writing `devicestate=unlock` and fixing the CRC makes the bootloader report
 `unlocked` / `orange`. It does **not** perform the official unlock provisioning
 (keybox/RPMB). The Trusty keymaster then hangs in `generate_key`; setup, DRM and
-attestation break. Returning to `devicestate=lock` caused a Sony-logo boot loop
-because `/data` had been re-provisioned under the unlocked state.
-
-Recovery from that historical S11 loop was the hold-power factory wipe. See
-[recovery.md](recovery.md). That is not the same as the later 2026-11-17 loop.
+attestation break. After relock, the operator reached setup on an ordinary power-on following the reset. See [the corrected S11 account](recovery.md).
 
 ## What the unlock did and did not do
 

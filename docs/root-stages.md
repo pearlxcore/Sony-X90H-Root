@@ -23,7 +23,7 @@ achieved from what is closed, blocked or only proven in QEMU.
 | Stage | Status |
 |---|---|
 | S10 | **BLOCKED.** No root boot consumer of shell-writable data or shell-settable persistent property was found; boot modules load from read-only partitions. This is a bounded scan, not a universal impossibility. |
-| S11 | **CLOSED.** The env edit produced orange/unlocked but skipped official provisioning; the TEE/keymaster path broke, and a lock revert produced a boot loop. The TV was restored by a factory wipe. Not usable. |
+| S11 | **CLOSED.** The env edit produced orange/unlocked but skipped official provisioning; the TEE/keymaster path broke, and setup appeared on normal power-on after the reset. Not usable. |
 | S12 | **NO-GO / reverted.** `disabled = 1` makes task contexts `unlabeled` and destabilises the TV; `enforcing = 0` already gives practical root. |
 | S13a | **ACHIEVED.** Server-only keeper survives a parent kill. |
 | S13b | **NOT ACHIEVED.** All-protocol cleanup panics in `cgroup_sk_free`; do not unload the module or run cleanup on the daily driver. |
