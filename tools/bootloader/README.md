@@ -39,5 +39,5 @@ Changing `devicestate` is the S11 experiment. It produced
 `orange/unlocked` but skipped official provisioning, broke the TEE/keymaster
 path and could boot-loop the TV. Do not use this tool as an unlock recipe.
 
-Read [../../docs/BOOTLOADER-TECHNICAL.md](../../docs/BOOTLOADER-TECHNICAL.md)
-and [../../docs/BOOTLOADER.md](../../docs/BOOTLOADER.md) first.
+Read [../../docs/bootloader-technical.md](../../docs/bootloader-technical.md)
+and [../../docs/bootloader.md](../../docs/bootloader.md) first.

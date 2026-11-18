@@ -32,7 +32,7 @@ panel or GPU clock.
 |---|---|---|---|
 | [picture-control](../tools/picture-control/) | X90H Picture Control v0.2.0: 84 keys, 82 settable, snapshot/restore, routes, latency | MUTATING | Root, exact firmware, active input |
 
-Read [X1-PICTURE.md](X1-PICTURE.md). Settings are per input; snapshot
+Read [picture-controls.md](picture-controls.md). Settings are per input; snapshot
 before changing. Do not issue `sopq...get_all`.
 
 ## Recovery and analysis

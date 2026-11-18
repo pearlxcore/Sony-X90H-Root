@@ -31,7 +31,7 @@ installs a recovery, writes a partition or reboots the TV.
 ## Repair
 
 The TV is in a recovery loop. Read
-[../../docs/RECOVERY.md](../../docs/RECOVERY.md). The repair is eMMC ISP or a
+[../../docs/recovery.md](../../docs/recovery.md). The repair is eMMC ISP or a
 main-board swap; a surgical `misc` patch must preserve the AB0 block at `0x800`.
 Do not flash a full zero `misc`.
 

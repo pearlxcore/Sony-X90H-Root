@@ -3,7 +3,7 @@
 The firmware-specific reverse-engineering helpers are **not** published. They
 expect private firmware dumps, vendor modules and device images, so shipping
 them would either be broken or would cross the public/private boundary in
-[../../docs/EVIDENCE-POLICY.md](../../docs/EVIDENCE-POLICY.md).
+[../../docs/evidence-policy.md](../../docs/evidence-policy.md).
 
 One standalone helper is included:
 

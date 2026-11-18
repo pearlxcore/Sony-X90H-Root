@@ -4,7 +4,7 @@ X90H Picture Control is a small toolset over the TV's real picture path. It
 drives Sony's X1/MT5895 processing for the active input. It is not PS2-specific
 and it does not bypass Sony's processing.
 
-The code and register-level detail are in [X1-TECHNICAL.md](X1-TECHNICAL.md).
+The code and register-level detail are in [picture-firmware-analysis.md](picture-firmware-analysis.md).
 
 ## Coverage
 

@@ -16,15 +16,15 @@ not work, because the addresses and the module CRCs are for this build.
 
 > **Status and source of truth.** The chain below is the v21 chain. The
 > 2026-11-16 qualification is in
-> [ROOT-QUALIFICATION.md](ROOT-QUALIFICATION.md); the current stage map is in
-> [ROOT-STAGES.md](ROOT-STAGES.md); the exploit source and its hashes are in
+> [root-test-results.md](root-test-results.md); the current stage map is in
+> [root-stages.md](root-stages.md); the exploit source and its hashes are in
 > [../exploit/README.md](../exploit/README.md). The test TV later entered a
-> recovery loop; see [RECOVERY.md](RECOVERY.md).
+> recovery loop; see [recovery.md](recovery.md).
 
 ## Contents
 
 - [What it gives](#what-it-gives)
-- [What it does not give](#what-it-does-not-give)
+- [What it does not give](#what-it-does-not-give-yet)
 - [Workflow: from the surface to root](#workflow-from-the-surface-to-root)
   - [Stage 0: Surface](#stage-0-surface)
   - [Stage 1: Shell root](#stage-1-shell-root)
@@ -261,7 +261,7 @@ setup and DRM break, the first boot takes over 4 hours, and returning to
 `lock` causes a boot loop. The `keystore2` watchdog showed `generate_key`
 pending 200 to 1,260 seconds; the setup wizard blocked on it and went black. Recovery for this S11 case was the hold-power-while-plugging factory
 wipe. `veritymode` stays `enforcing`, so AVB bypass was never proved. This is
-not the 2026-11-17 recovery loop; see [RECOVERY.md](RECOVERY.md).
+not the 2026-11-17 recovery loop; see [recovery.md](recovery.md).
 
 This stage is not part of the working chain. The env write is a real
 boot-chain integrity weakness, but it is post-exploitation: root plus
@@ -368,7 +368,7 @@ adb shell cat /data/local/tests/x90log
 - If it panics or boot-loops: **unplug the TV, hold the power button on the
   TV, plug it back in, keep holding**. Expected: an "erasing" screen, then
   setup. This is the recovery that worked for the S11 relock loop. It is not a
-  universal recovery; for the 2026-11-17 loop see [RECOVERY.md](RECOVERY.md).
+  universal recovery; for the 2026-11-17 loop see [recovery.md](recovery.md).
 
 ## The bootloader unlock attempt
 
@@ -402,7 +402,7 @@ unlocked state.
 Recovery for that S11 loop: unplug the TV, hold the power button on the TV, plug it back in,
 keep holding. The TV shows "erasing", wipes `/data`, reboots, and reaches
 setup. After that the bootloader showed `locked`/`green` again and keystore
-was healthy. This is not the 2026-11-17 loop; see [RECOVERY.md](RECOVERY.md).
+was healthy. This is not the 2026-11-17 loop; see [recovery.md](recovery.md).
 
 `veritymode` stayed `enforcing` throughout, so an AVB bypass was never proved.
 Do not do this on a daily-use TV.
@@ -510,7 +510,7 @@ the root inode and the module file.
 
 - Source: `exploit/prod_exploit_v21.c`, SHA256
   `2c1a27927027f32d48dc232a42c2a35b36be2c6f5d23d5e68dfbf38a2b4174c7`
-  (LF-normalized), blob `963f74d469604aa665708b866131f003b68a53ec`,
+  (LF-normalized), blob `185270a8e7cc38e42b5bb5f64036eb5cd411aa11`,
   47,942 bytes.
 - Prebuilt: `prebuilt/prod_exploit_v21`, SHA256
   `a19d7b811cd3aab89134d453a71ea6332b8209399ceea27c1361a629d56e05d9`,

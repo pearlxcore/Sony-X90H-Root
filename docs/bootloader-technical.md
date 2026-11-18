@@ -1,7 +1,7 @@
 # Bootloader and security - technical notes
 
 This page holds the low-level layouts and code paths behind
-[BOOTLOADER.md](BOOTLOADER.md). It is analysis, not a flashing guide.
+[bootloader.md](bootloader.md). It is analysis, not a flashing guide.
 
 ## 1. U-Boot environment
 
@@ -44,7 +44,7 @@ print("crc", hex(stored), hex(calc), stored == calc)
 
 Changing `devicestate` and fixing the CRC is what S11 did. It produced
 `orange/unlocked` but skipped official provisioning. Do not repeat it on a
-daily-use TV. See [BOOTLOADER.md](BOOTLOADER.md).
+daily-use TV. See [bootloader.md](bootloader.md).
 
 ## 2. AVB state machine
 
@@ -165,4 +165,4 @@ replacement.
 - BROM/eMMC ISP on MT5895.
 - The current partition state after the 2026-11-17 recovery loop.
 
-See [RECOVERY-TECHNICAL.md](RECOVERY-TECHNICAL.md) for the loop and repair.
+See [recovery-technical.md](recovery-technical.md) for the loop and repair.

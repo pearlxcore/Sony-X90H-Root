@@ -1,7 +1,7 @@
 # X1 picture control and defect claims - technical notes
 
 This page holds the code and register-level detail behind
-[X1-PICTURE.md](X1-PICTURE.md) and [X1-DEFECTS.md](X1-DEFECTS.md).
+[picture-controls.md](picture-controls.md) and [picture-issues.md](picture-issues.md).
 
 ## 1. The 84-key control surface
 
@@ -131,7 +131,7 @@ the TCON model and reprograms the panel LUT when `lut_num` or `ad_on` changes.
 The earlier RCA said `pq_func_921` wrote `ad_on`; it writes `tdcon`. That
 correction matters for the current verdict.
 
-## 3. Claim 1 - the 4K-HFR route and 4k1k
+## 4K-HFR routing and 4k1k
 
 ### Route table
 
@@ -174,7 +174,7 @@ But the ARM-side 4k1k calls are reached only from a debug CLI handler, and MEMC
 base modes 4/5 only from a test-pattern command. No static path shows the mode
 being selected for 4K120 HDMI.
 
-## 4. Claim 4 - DBC4PS backlight stepping
+## DBC4PS backlight stepping
 
 `pq_func_486` (`calc_dyn_pic_dbc4ps_main`) in pseudocode:
 
@@ -223,7 +223,7 @@ The split runner is `tools/display/split/eng_split.sh`.
 
 ## 6. Evidence
 
-- `docs/X1-DEFECTS.md` - the current verdicts.
+- `docs/picture-issues.md` - the current verdicts.
 - The full private research tree (not published) holds the longer analysis and
   the raw evidence.
 - The public repo intentionally does not include firmware, APKs, JARs, SREG

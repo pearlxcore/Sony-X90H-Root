@@ -5,7 +5,7 @@ KD-55X9000H, firmware `626241` / kernel `4.19.260-ab626241`. It is analysis and
 a warning, not a flashing guide.
 
 Technical detail - U-Boot env format/CRC, the `misc` struct and the fastboot
-gating pseudocode - is in [BOOTLOADER-TECHNICAL.md](BOOTLOADER-TECHNICAL.md).
+gating pseudocode - is in [bootloader-technical.md](bootloader-technical.md).
 
 > The bootloader experiment (S11) is closed. It produced `orange/unlocked` but
 > skipped official provisioning, broke the TEE/keymaster path, and a lock revert
@@ -41,7 +41,7 @@ attestation break. Returning to `devicestate=lock` caused a Sony-logo boot loop
 because `/data` had been re-provisioned under the unlocked state.
 
 Recovery from that historical S11 loop was the hold-power factory wipe. See
-[RECOVERY.md](RECOVERY.md). That is not the same as the later 2026-11-17 loop.
+[recovery.md](recovery.md). That is not the same as the later 2026-11-17 loop.
 
 ## What the unlock did and did not do
 
@@ -116,5 +116,5 @@ observed** on this unit. Do not rely on it.
 - Do not flash while locked.
 - Do not rely on the fastboot marker while locked.
 - Do not treat an old green/locked reading as the current state.
-- If the TV is in a recovery loop, use [RECOVERY.md](RECOVERY.md), not a blind
+- If the TV is in a recovery loop, use [recovery.md](recovery.md), not a blind
   flash.

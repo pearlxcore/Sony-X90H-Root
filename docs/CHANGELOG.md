@@ -3,24 +3,24 @@
 ## 2026-11-18 - research expansion
 
 - Split the long root write-up out of `README.md` into
-  [ROOT.md](ROOT.md); the top-level README is now an overview and index.
+  [root.md](root.md); the top-level README is now an overview and index.
 - Added:
-  - [ROOT-QUALIFICATION.md](ROOT-QUALIFICATION.md)
-  - [ROOT-STAGES.md](ROOT-STAGES.md)
-  - [BOOTLOADER.md](BOOTLOADER.md)
-  - [RECOVERY.md](RECOVERY.md)
-  - [X1-PICTURE.md](X1-PICTURE.md)
+  - [root-test-results.md](root-test-results.md)
+  - [root-stages.md](root-stages.md)
+  - [bootloader.md](bootloader.md)
+  - [recovery.md](recovery.md)
+  - [picture-controls.md](picture-controls.md)
   - [X1-DEFECTS.md](X1-DEFECTS.md)
   - [USER-CLAIMS.md](USER-CLAIMS.md)
-  - [TOOLS.md](TOOLS.md)
-  - [EVIDENCE-POLICY.md](EVIDENCE-POLICY.md)
-  - [EXPLOIT-HISTORY.md](EXPLOIT-HISTORY.md)
+  - [tools.md](tools.md)
+  - [evidence-policy.md](evidence-policy.md)
+  - [exploit-history.md](exploit-history.md)
 - Added technical notes:
-  - [ROOT-CODE.md](ROOT-CODE.md)
-  - [BOOTLOADER-TECHNICAL.md](BOOTLOADER-TECHNICAL.md)
-  - [RECOVERY-TECHNICAL.md](RECOVERY-TECHNICAL.md)
-  - [X1-TECHNICAL.md](X1-TECHNICAL.md)
-  - [CODE-MAP.md](CODE-MAP.md)
+  - [root-code.md](root-code.md)
+  - [bootloader-technical.md](bootloader-technical.md)
+  - [recovery-technical.md](recovery-technical.md)
+  - [picture-firmware-analysis.md](picture-firmware-analysis.md)
+  - [code-map.md](code-map.md)
 - Added tools:
   - `tools/bootloader/uboot_env.py` (U-Boot env parser/CRC)
   - `tools/recovery/misc_patch.py` (surgical `misc` BCB clear)

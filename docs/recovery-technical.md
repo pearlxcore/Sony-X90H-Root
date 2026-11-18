@@ -1,6 +1,6 @@
 # Recovery - technical notes
 
-This page holds the low-level details behind [RECOVERY.md](RECOVERY.md). It is
+This page holds the low-level details behind [recovery.md](recovery.md). It is
 an offline analysis; the TV is in a recovery loop and no live test was possible.
 
 ## 1. The 2026-11-17 loop

@@ -1,4 +1,4 @@
-# 00 - Overview and scope
+# Device and documentation
 
 ## Device
 
@@ -50,7 +50,7 @@ after a patched-boot experiment. The last recorded state was: Sony logo, then a
 frozen "do not power off / updating" screen; no ADB, no ping, no USB
 enumeration; `misc` still carrying `boot-recovery`; `boot_a` stock-or-patched,
 unknown. The repair path is eMMC ISP or a main-board swap. See
-[RECOVERY.md](RECOVERY.md).
+[recovery.md](recovery.md).
 
 The root and bootloader results in this repository are dated observations from
 before that incident. They are not a claim about the current TV state.
@@ -61,9 +61,28 @@ Published: write-ups, measurements, source code, hashes and selected tools.
 
 Not published: firmware, OTA packages, partition images, APKs/JARs, vendor
 modules, keys, DRM/TEE/RPMB material, device dumps, serials, MACs, live IPs and
-account data. See [EVIDENCE-POLICY.md](EVIDENCE-POLICY.md).
+account data. See [evidence-policy.md](evidence-policy.md).
 
 ## Safety
 
 Read the document for the subsystem before running anything. The TV can crash,
 wipe data or stop booting. The tools are not a product and have no warranty.
+
+## Research notes
+
+- [Bootloader and security - technical notes](bootloader-technical.md)
+- [Bootloader and security notes](bootloader.md)
+- [Changelog](CHANGELOG.md)
+- [Code map](code-map.md)
+- [Evidence policy](evidence-policy.md)
+- [Exploit history and source of truth](exploit-history.md)
+- [X1 Picture Control v0.2.0](picture-controls.md)
+- [X1 picture control and defect claims - technical notes](picture-firmware-analysis.md)
+- [Picture issues on the Sony X90H](picture-issues.md)
+- [Recovery - technical notes](recovery-technical.md)
+- [Recovery notes](recovery.md)
+- [Root chain - code walkthrough](root-code.md)
+- [Root stage map - S0 to S16](root-stages.md)
+- [Root channel qualification - 2026-11-16](root-test-results.md)
+- [Sony X90H (KD-55X9000H) root notes](root.md)
+- [Tools](tools.md)

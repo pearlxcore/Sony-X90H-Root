@@ -2,7 +2,7 @@
 
 Selected first-party tools from the research. Each directory has its own README.
 The catalog, risk labels and what is not included are in
-[../docs/TOOLS.md](../docs/TOOLS.md).
+[../docs/tools.md](../docs/tools.md).
 
 ```
 display/

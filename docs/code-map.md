@@ -38,8 +38,8 @@ Key functions in `prod_exploit_v21.c`:
 | `tools/recovery/acquire_*.py` | Bounded ADB/boot/first-boot acquisition. |
 | `tools/recovery/analyze_boot.py` | Post-process a boot capture. |
 | `tools/recovery/map_usb_storage.py` | Adopted USB/OTG mapping. |
-| `docs/BOOTLOADER-TECHNICAL.md` | U-Boot env, AVB, misc, fastboot gating. |
-| `docs/RECOVERY-TECHNICAL.md` | Recovery rc, BCB patch, offsets, post-wipe. |
+| `docs/bootloader-technical.md` | U-Boot env, AVB, misc, fastboot gating. |
+| `docs/recovery-technical.md` | Recovery rc, BCB patch, offsets, post-wipe. |
 
 ## Display tools
 
@@ -63,7 +63,7 @@ Key functions in `prod_exploit_v21.c`:
 | `tools/picture-control/lib/x1sh.sh` | Root mailbox helper. |
 | `tools/picture-control/tools/PQTool.java` | `MtkTvConfig` reflection tool. |
 | `tools/picture-control/x1-spec.json` | 84-key control surface. |
-| `docs/X1-TECHNICAL.md` | Control path, policy code, 4k1k, DBC4PS. |
+| `docs/picture-firmware-analysis.md` | Control path, policy code, 4k1k, DBC4PS. |
 
 Key functions:
 

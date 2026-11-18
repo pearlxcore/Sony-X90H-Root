@@ -3,7 +3,7 @@
 This page separates two different recoveries. They are not interchangeable.
 
 Technical detail - the recovery rc, the BCB patch code and the partition
-offsets - is in [RECOVERY-TECHNICAL.md](RECOVERY-TECHNICAL.md).
+offsets - is in [recovery-technical.md](recovery-technical.md).
 
 ## Case 1 - S11 relock boot loop (historical)
 
