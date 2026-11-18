@@ -130,7 +130,7 @@ It never reboots or repairs.
 
 ## 7. What is proven
 
-- The S11 relock loop was recovered by the hold-power factory wipe.
+- After the S11 reset, the owner observed setup on an ordinary power-on with the TV power button released.
 - The stock `boot_a` and `vbmeta_a` hashes match the OTA.
 - The 2026-11-17 recovery rc behavior and the `boot-recovery` BCB are read from
   the dumped recovery files.
