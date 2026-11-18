@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-11-19 - model coverage
+
+- Added [model-coverage.md](model-coverage.md): which BRAVIA generations the
+  published root chain applies to. Of the four generations examined, only the
+  2020 VH1 generation ships the perf subsystem enabled; the 2018-2020 F/G/H
+  line, the 2021 J series and the 2022 K series either compile it out or fence
+  it off, and the 2023 L series is unmeasured.
+- Basis is stated in the page: the 2020 verdict is the test unit's own kernel
+  config; the other three are Sony's published kernel source for each
+  generation. No exploit detail, keys or firmware are published.
+- Also records the platform names recovered from Sony's source-release paths
+  (`Uroboros`, `Valhalla`, `Valhalla2`) so model-to-generation mapping does not
+  have to be guessed from model numbers.
+
 ## 2026-11-19 - TEE and Keymaster status
 
 - Added [tee-keymaster.md](tee-keymaster.md): offline status notes on the TEE

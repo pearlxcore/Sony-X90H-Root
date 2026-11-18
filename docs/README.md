@@ -79,6 +79,7 @@ wipe data or stop booting. The tools are not a product and have no warranty.
 - [Code map](code-map.md)
 - [Evidence policy](evidence-policy.md)
 - [Exploit history and source of truth](exploit-history.md)
+- [Model coverage - which models this chain applies to](model-coverage.md)
 - [X1 Picture Control v0.2.0](picture-controls.md)
 - [X1 picture control and defect claims - technical notes](picture-firmware-analysis.md)
 - [Picture issues on the Sony X90H](picture-issues.md)
