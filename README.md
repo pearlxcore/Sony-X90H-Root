@@ -1,6 +1,6 @@
 # Sony X90H research notes
 
-On November 16, 2026, I obtained temporary root on a Sony KD-55X9000H running Android 12, build `626241` (kernel `4.19.260-ab626241`), and repeated the result after a reboot. On November 17, the same TV entered a recovery loop following a separate patched-boot experiment.
+I obtained temporary root on a Sony KD-55X9000H running Android 12, build `626241` (kernel `4.19.260-ab626241`).
 
 - [Temporary root and test results](docs/root-test-results.md)
 - [Boot experiments](docs/bootloader.md) and [recovery history](docs/recovery.md)
